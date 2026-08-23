@@ -382,7 +382,7 @@ def envoi():
                 nom = nom + id_auto
         hset_dict_redis("html:par_defaut", nom, body, redis_var = "redis_base")
         nom_encode = quote(nom, safe='')
-        return Response(nomsite + "/html?nom=" + {nom_encode}, status=200)
+        return Response(nomsite + "/html?nom=" + nom_encode, status=200)
 
     except Exception as e:
         return Response(f"Erreur lors du traitement de la requête !\n{e}", status=200)
