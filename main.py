@@ -6,14 +6,14 @@ from flask import Flask, request, Response #, send_file
 from dotenv import load_dotenv  # pour les variables d'environnement
 import ast
 import base64
-import threading
+# import threading
 import requests
 import os
 import json
 
 # apiflash
 import uuid
-
+from urllib.parse import quote # urljoin pour selectolax
 # Pour la gesion des cles
 import hashlib
 from Crypto.Cipher import AES
@@ -381,7 +381,9 @@ def envoi():
                 id_auto = str(uuid.uuid4())
                 nom = nom + id_auto
         hset_dict_redis("html:par_defaut", nom, body, redis_var = "redis_base")
-        return nomsite + nom
+        nom_encode = quote(nom, safe='')
+        return Response(nomsite + "/html?nom=" + {nom_encode}, status=200)
+
     except:
         return Response("Erreur lors du traitement de la requête !", status=200)
 
@@ -391,9 +393,9 @@ def page_web_html():
     try :
         data = request.get_json(force=True)
         nom = data["nom"]
-        test_nom = hget_dict_redis("html:par_defaut", nom, redis_var = "redis_base")
-        if test_nom:
-            return test_nom
+        page_html = hget_dict_redis("html:par_defaut", nom, redis_var = "redis_base")
+        if page_html:
+            return page_html
         else:
             return Response("Page web introuvable !", status=200)
             
