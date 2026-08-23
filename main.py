@@ -384,8 +384,8 @@ def envoi():
         nom_encode = quote(nom, safe='')
         return Response(nomsite + "/html?nom=" + {nom_encode}, status=200)
 
-    except:
-        return Response("Erreur lors du traitement de la requête !", status=200)
+    except Exception as e:
+        return Response(f"Erreur lors du traitement de la requête !\n{e}", status=200)
 
 
 @app.route("/html", methods=['GET', 'POST'])
