@@ -25,7 +25,7 @@ CORS(app)
 #_____________________________________________________________________________________________________
 
 global_bool_envoi_bip = False
-
+nom_site = "html-nine-topaz.vercel.app"
 
 
 # charger les variables d'environnements
@@ -364,7 +364,7 @@ telegram_requests = requests.Session()
 
     
 
-nom_site = "0"
+
 @app.route("/envoi", methods=['GET', 'POST'])
 def envoi():
     try :
