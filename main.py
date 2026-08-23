@@ -399,9 +399,9 @@ def page_web_html():
         else:
             return Response("Page web introuvable !", status=200)
             
-    except:
-        return Response("Erreur lors du traitement de la requête !", status=200)
-        
+    except Exception as e:
+        return Response(f"Erreur lors du traitement de la requête !\n{e}", status=200)
+
 
     
 if __name__ == "__main__":
