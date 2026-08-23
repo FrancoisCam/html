@@ -1,0 +1,7 @@
+Flask==3.1.*
+gunicorn==23.0.0
+requests==2.33.1
+python-dotenv==1.*
+upstash-redis==1.*
+Flask-Cors==6.*
+pycryptodome==3.23.0
