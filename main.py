@@ -391,8 +391,11 @@ def envoi():
 @app.route("/html", methods=['GET', 'POST'])
 def page_web_html():
     try :
-        data = request.get_json(force=True)
-        nom = data["nom"]
+        if request.method == "POST":
+            data = request.get_json(force=True)
+            nom = data["nom"]
+        else:  # GET
+            nom = request.args.get("nom")  # paramètre dans l'URL
         page_html = hget_dict_redis("html:par_defaut", nom, redis_var = "redis_base")
         if page_html:
             return page_html
