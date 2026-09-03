@@ -18,6 +18,8 @@ from urllib.parse import quote # urljoin pour selectolax
 import hashlib
 from Crypto.Cipher import AES
 
+import traceback
+
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
@@ -434,13 +436,25 @@ def intermediaire():
     data.pop("target_url", None)
 
     # Relayer vers l’URL cible
-    if headers["User-Agent"]:
-        resp = requests.post(target_url, headers=headers, params=params, data=data)
-    else:
-        resp = requests.post(target_url, params=params, data=data)
+    try:
+        if headers["User-Agent"]:
+            resp = requests.post(target_url, headers=headers, params=params, data=data)
+        else:
+            resp = requests.post(target_url, params=params, data=data)
+            
+        return Response(resp.content, status=resp.status_code, headers=dict(resp.headers))
+    except Exception as e:
+        err_type = type(e).__name__
+        err_msg = str(e)
+        tb = traceback.format_exc()
+        collection_exception = {
+            "statut": "echoué",
+            "type_erreur": err_type,
+            "message": err_msg,
+            "traceback": tb,
+        }
+        return Response(f"Erreur :\n\n{collection_exception}", 200)
         
-    return Response(resp.content, status=resp.status_code, headers=dict(resp.headers))
-
 
 
 # @app.route("/proxy", methods=["GET", "POST"])
