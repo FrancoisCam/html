@@ -453,7 +453,7 @@ def intermediaire():
             resp = requests.post(target_url, params=params, data=data)
             
             
-        return Response(resp.content, status=resp.status_code, headers=dict(resp.headers))
+        return Response(resp.content, status=resp.status_code)
     except Exception as e:
         err_type = type(e).__name__
         err_msg = str(e)
