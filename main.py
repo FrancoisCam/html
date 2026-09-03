@@ -25,7 +25,7 @@ CORS(app)
 #_____________________________________________________________________________________________________
 
 global_bool_envoi_bip = False
-nom_site = "html-nine-topaz.vercel.app"
+nom_site = "https://html-nine-topaz.vercel.app"
 
 
 # charger les variables d'environnements
@@ -368,11 +368,17 @@ telegram_requests = requests.Session()
 @app.route("/envoi", methods=['GET', 'POST'])
 def envoi():
     try :
-        data = request.get_json(force=True)
-        nom = data.get("nom")
-        body = data["html"]
-        nomsite = data.get("site") or nom_site
-        nouveau = data.get("nouveau")
+        if request.method == "POST":
+            data = request.get_json(force=True)
+            nom = data.get("nom")
+            body = data["html"]
+            nomsite = data.get("site") or nom_site
+            nouveau = data.get("nouveau") or False
+        else:
+            nom = request.args.get("nom")
+            body = request.args.get("html")
+            nomsite = request.args.get("site") or nom_site
+            nouveau = request.args.get("nouveau") or False
         if not nom:
             nom = str(uuid.uuid4())
         elif str(nouveau)==str(True):
@@ -406,9 +412,63 @@ def page_web_html():
         return Response(f"Erreur lors du traitement de la requête !\n{e}", status=200)
 
 
-    
+
+
+# PROXY
+TARGET_URL1 = "https://api.imgbb.com/1/upload"
+
+@app.route("/intermediaire", methods=["POST"])
+def intermediaire():
+    # L’URL cible est passée en paramètre (query string ou body)
+    target_url = request.args.get("target_url") or request.form.get("target_url")
+    if not target_url:
+        target_url = TARGET_URL1
+
+    # On récupère les autres paramètres et données
+    params = request.args.to_dict()
+    data = request.form.to_dict()
+    headers = {"User-Agent": request.headers.get("User-Agent", "")}
+
+    # Supprimer target_url des params/data pour éviter collision
+    params.pop("target_url", None)
+    data.pop("target_url", None)
+
+    # Relayer vers l’URL cible
+    if headers["User-Agent"]:
+        resp = requests.post(target_url, headers=headers, params=params, data=data)
+    else:
+        resp = requests.post(target_url, params=params, data=data)
+        
+    return Response(resp.content, status=resp.status_code, headers=dict(resp.headers))
+
+
+
+# @app.route("/proxy", methods=["GET", "POST"])
+# def intermediaire():
+#     if request.method == "GET":
+#         resp = requests.get(TARGET_URL, params=request.args)
+#     else:
+#         resp = requests.post(TARGET_URL, data=request.form)
+
+#     # Retourner la réponse brute au client
+#     return Response(resp.content, status=resp.status_code, headers=dict(resp.headers))
+
+
+
+
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+
+
+
+
+
+
+    
+# if __name__ == "__main__":
+#     app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
 
  
 
