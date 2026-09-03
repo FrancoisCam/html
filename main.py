@@ -425,22 +425,33 @@ def intermediaire():
     target_url = request.args.get("target_url") or request.form.get("target_url")
     if not target_url:
         target_url = TARGET_URL1
-
+    
+    print("jusqu'ici, ca va")
     # On récupère les autres paramètres et données
     params = request.args.to_dict()
     data = request.form.to_dict()
     headers = {"User-Agent": request.headers.get("User-Agent", "")}
-
+    
+    print("user agent")
     # Supprimer target_url des params/data pour éviter collision
     params.pop("target_url", None)
     data.pop("target_url", None)
 
     # Relayer vers l’URL cible
+    print("avant try")
     try:
         if headers["User-Agent"]:
+            resp_format = '''
+            resp = requests.post({target_url}, headers={headers}, params={params}, data={data})
+            '''
             resp = requests.post(target_url, headers=headers, params=params, data=data)
+            
         else:
+            resp_format = '''
+            resp = requests.post({target_url}, params={params}, data={data})
+            '''
             resp = requests.post(target_url, params=params, data=data)
+            
             
         return Response(resp.content, status=resp.status_code, headers=dict(resp.headers))
     except Exception as e:
@@ -453,7 +464,7 @@ def intermediaire():
             "message": err_msg,
             "traceback": tb,
         }
-        return Response(f"Erreur :\n\n{collection_exception}", 200)
+        return Response(f"Erreur :\n\n{collection_exception}\n\nresp_format =  {resp_format}", 200)
         
 
 
